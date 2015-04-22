@@ -154,7 +154,7 @@ public class Parsing {
 				int nvalue1, nvalue2; // 传递的参数
 				float fvalue1, fvalue2;
 				switch (opcode) {
-				case 54: {   //E => E + T
+				case 54: { // E => E + T
 					Node node = parsingtree.makeNode(token);
 					analysisStack.peek().setFather(node);
 					forn1 = analysisStack.peek().isForn();// forn = float(1) or
@@ -162,8 +162,10 @@ public class Parsing {
 					fvalue1 = analysisStack.peek().getFvalue();
 					nvalue1 = analysisStack.peek().getNvalue();
 					analysisStack.pop();
+					stateStack.pop();
 					analysisStack.peek().setFather(node);
 					analysisStack.pop();
+					stateStack.pop();
 					analysisStack.peek().setFather(node);
 					forn2 = analysisStack.peek().isForn();
 					fvalue2 = analysisStack.peek().getFvalue();
@@ -175,8 +177,14 @@ public class Parsing {
 						node.setForn(false);
 						node.setNvalue(nvalue1 + nvalue2);
 					}
+					int leftcode = findLeft(expressions[54][0]);
+					analysisStack.pop();
+					stateStack.pop();
+					stateStack
+							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
+					analysisStack.push(node);
 				}
-				case 55: {//E => E - T
+				case 55: {// E => E - T
 					Node node = parsingtree.makeNode(token);
 					analysisStack.peek().setFather(node);
 					forn1 = analysisStack.peek().isForn();// forn = float(1) or
@@ -184,8 +192,10 @@ public class Parsing {
 					fvalue1 = analysisStack.peek().getFvalue();
 					nvalue1 = analysisStack.peek().getNvalue();
 					analysisStack.pop();
+					stateStack.pop();
 					analysisStack.peek().setFather(node);
 					analysisStack.pop();
+					stateStack.pop();
 					analysisStack.peek().setFather(node);
 					forn2 = analysisStack.peek().isForn();
 					fvalue2 = analysisStack.peek().getFvalue();
@@ -197,8 +207,14 @@ public class Parsing {
 						node.setForn(false);
 						node.setNvalue(nvalue1 - nvalue2);
 					}
+					analysisStack.pop();
+					stateStack.pop();
+					int leftcode = findLeft(expressions[55][0]);
+					stateStack
+							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
+					analysisStack.push(node);
 				}
-				case 56: {
+				case 56: { // E=>T
 					Node node = parsingtree.makeNode(token);
 					analysisStack.peek().setFather(node);
 					node.setForn(analysisStack.peek().isForn());
@@ -207,8 +223,14 @@ public class Parsing {
 					} else {
 						node.setNvalue(analysisStack.peek().getNvalue());
 					}
+					analysisStack.pop();
+					stateStack.pop();
+					int leftcode = findLeft(expressions[56][0]);
+					stateStack
+							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
+					analysisStack.push(node);
 				}
-				case 57: {
+				case 57: { // t => t * f;
 					Node node = parsingtree.makeNode(token);
 					analysisStack.peek().setFather(node);
 					forn1 = analysisStack.peek().isForn();
@@ -216,25 +238,33 @@ public class Parsing {
 					fvalue1 = analysisStack.peek().getFvalue();
 					nvalue1 = analysisStack.peek().getNvalue();
 					analysisStack.pop();
+					stateStack.pop();
 					analysisStack.peek().setFather(node);
 					analysisStack.pop();
+					stateStack.pop();
 					analysisStack.peek().setFather(node);
 					forn2 = analysisStack.peek().isForn();
 					fvalue2 = analysisStack.peek().getFvalue();
 					nvalue2 = analysisStack.peek().getNvalue();
-					if (forn1 || forn2) {// 如果是整数加浮点数
+					if (forn1 || forn2) {// 如果是整数乘浮点数
 						node.setForn(true);
 						if (forn1) {
 							node.setFvalue(fvalue1 * nvalue2);
 						} else {
 							node.setFvalue(fvalue2 * nvalue1);
 						}
-					} else {// 如果是整数加整数
+					} else {// 如果是整数乘整数
 						node.setForn(false);
 						node.setNvalue(nvalue1 * nvalue2);
 					}
+					analysisStack.pop();
+					stateStack.pop();
+					int leftcode = findLeft(expressions[56][0]);
+					stateStack
+							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
+					analysisStack.push(node);
 				}
-				case 58: {
+				case 58: { // t => t / f;
 					Node node = parsingtree.makeNode(token);
 					analysisStack.peek().setFather(node);
 					forn1 = analysisStack.peek().isForn();
@@ -242,13 +272,15 @@ public class Parsing {
 					fvalue1 = analysisStack.peek().getFvalue();
 					nvalue1 = analysisStack.peek().getNvalue();
 					analysisStack.pop();
+					stateStack.pop();
 					analysisStack.peek().setFather(node);
 					analysisStack.pop();
+					stateStack.pop();
 					analysisStack.peek().setFather(node);
 					forn2 = analysisStack.peek().isForn();
 					fvalue2 = analysisStack.peek().getFvalue();
 					nvalue2 = analysisStack.peek().getNvalue();
-					if (forn1 || forn2) {// 如果是整数加浮点数
+					if (forn1 || forn2) {// 如果是整数除浮点数
 						node.setForn(true);
 						if (forn1) {
 							if (nvalue2 != 0)
@@ -265,7 +297,7 @@ public class Parsing {
 										+ (node.getToken()).linenum
 										+ ": / by zero";
 						}
-					} else {// 如果是整数加整数
+					} else {// 如果是整数除整数
 						node.setForn(false);
 						if (nvalue2 != 0)
 							node.setNvalue(nvalue1 / nvalue2);
@@ -273,8 +305,127 @@ public class Parsing {
 							return "error on line" + (node.getToken()).linenum
 									+ ":/ by zero";
 					}
+					analysisStack.pop();
+					stateStack.pop();
+					int leftcode = findLeft(expressions[56][0]);
+					stateStack
+							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
+					analysisStack.push(node);
 				}
-
+				case 59: { // t=>f
+					Node node = parsingtree.makeNode(token);
+					analysisStack.peek().setFather(node);
+					node.setForn(analysisStack.peek().isForn());
+					if (analysisStack.peek().isForn()) {
+						node.setFvalue(analysisStack.peek().getFvalue());
+					} else {
+						node.setNvalue(analysisStack.peek().getNvalue());
+					}
+					analysisStack.pop();
+					stateStack.pop();
+					int leftcode = findLeft(expressions[56][0]);
+					stateStack
+							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
+					analysisStack.push(node);
+				}
+				case 60: { // f=>asgmtvar
+					Node node = parsingtree.makeNode(token);
+					analysisStack.peek().setFather(node);
+					node.setForn(analysisStack.peek().isForn());
+					if (analysisStack.peek().isForn()) {
+						node.setFvalue(analysisStack.peek().getFvalue());
+					} else {
+						node.setNvalue(analysisStack.peek().getNvalue());
+					}
+					analysisStack.pop();
+					stateStack.pop();
+					int leftcode = findLeft(expressions[56][0]);
+					stateStack
+							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
+					analysisStack.push(node);
+				}
+				case 61: {// f=>cconst
+					Node node = parsingtree.makeNode(token);
+					analysisStack.peek().setFather(node);
+					node.setForn(analysisStack.peek().isForn());
+					if (analysisStack.peek().isForn()) {
+						node.setFvalue(analysisStack.peek().getFvalue());
+					} else {
+						node.setNvalue(analysisStack.peek().getNvalue());
+					}
+					analysisStack.pop();
+					stateStack.pop();
+					int leftcode = findLeft(expressions[56][0]);
+					stateStack
+							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
+					analysisStack.push(node);
+				}
+				case 62: {
+					Node node = parsingtree.makeNode(token);
+					analysisStack.peek().setFather(node);
+					node.setForn(analysisStack.peek().isForn());
+					if (analysisStack.peek().isForn()) {
+						node.setFvalue(analysisStack.peek().getFvalue());
+					} else {
+						node.setNvalue(analysisStack.peek().getNvalue());
+					}
+					analysisStack.pop();
+					stateStack.pop();
+					int leftcode = findLeft(expressions[56][0]);
+					stateStack
+							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
+					analysisStack.push(node);
+				}
+				case 63: { //f => ( cexpression );
+					Node node = parsingtree.makeNode(token);
+					analysisStack.peek().setFather(node);
+					analysisStack.pop();
+					stateStack.pop();
+					forn1 = analysisStack.peek().isForn();
+					// forn stands for float(1) or number(0)
+					fvalue1 = analysisStack.peek().getFvalue();
+					nvalue1 = analysisStack.peek().getNvalue();
+					analysisStack.peek().setFather(node);
+					analysisStack.pop();
+					stateStack.pop();
+					analysisStack.peek().setFather(node);
+					if (forn1) {
+						node.setForn(true);
+						node.setFvalue(fvalue1);
+					} else {
+						node.setForn(false);
+						node.setNvalue(nvalue1);
+					}
+					analysisStack.pop();
+					stateStack.pop();
+					int leftcode = findLeft(expressions[56][0]);
+					stateStack
+							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
+					analysisStack.push(node);
+				}
+				case 64:{//const => charconst;
+					Node node = parsingtree.makeNode(token);
+					analysisStack.peek().setFather(node);
+					analysisStack.pop();
+					stateStack.pop();
+				}
+				case 65: { //f => ( cexpression );
+					Node node = parsingtree.makeNode(token);
+					analysisStack.peek().setFather(node);
+					analysisStack.pop();
+					stateStack.pop();
+				}
+				case 66: { //f => ( cexpression );
+					Node node = parsingtree.makeNode(token);
+					analysisStack.peek().setFather(node);
+					analysisStack.pop();
+					stateStack.pop();}
+				case 67: { //f => ( cexpression );
+					Node node = parsingtree.makeNode(token);
+					analysisStack.peek().setFather(node);
+					analysisStack.pop();
+					stateStack.pop();}
+				
 				}
 				if (expressions[opcode][1].length() != 0) {
 					// System.out.println(expressions[opcode][1].split(" ").length);
