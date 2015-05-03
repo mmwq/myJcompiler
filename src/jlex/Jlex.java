@@ -368,6 +368,7 @@ public class Jlex {
 							token.token = "true";
 							token.bvalue=true;
 							token.linenum = lines;
+							token.dataType =4;
 							tokenlist.add(token);
 							continue;
 						} else if (tokens[i].equals("false")) {
@@ -376,6 +377,7 @@ public class Jlex {
 							token.token = "false";
 							token.bvalue= false;
 							token.linenum = lines;
+							token.dataType =4;
 							tokenlist.add(token);
 							continue;
 						} else if (isVid(tokens[i])) {
@@ -399,7 +401,7 @@ public class Jlex {
 									+ Integer.parseInt(tokens[i]));
 							Tokens token = new Tokens();
 							token.token = "numconst";
-							token.forn = false;
+							token.dataType = 2;
 							token.linenum = lines;
 							token.nvalue = Integer.parseInt(tokens[i]);
 							tokenlist.add(token);
@@ -410,7 +412,7 @@ public class Jlex {
 							Tokens token = new Tokens();
 							token.token = "floatconst";
 							token.linenum = lines;
-							token.forn = true;
+							token.dataType= 1;
 							token.fvalue = Float.parseFloat(tokens[i]);
 							tokenlist.add(token);
 							continue;
@@ -427,6 +429,7 @@ public class Jlex {
 							Tokens token = new Tokens();
 							token.token = "charconst";
 							token.linenum = lines;
+							token.dataType = 3;
 							token.string = tokens[i];
 							tokenlist.add(token);
 							continue;

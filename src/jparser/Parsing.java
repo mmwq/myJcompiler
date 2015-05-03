@@ -150,15 +150,14 @@ public class Parsing {
 				break;
 			} else if (opcode < 0) {
 				opcode = (opcode * -1); // 找到对应的规约表达式
-				boolean forn1 = false, forn2 = false;
+				int dataType1 = 0, dataType2 = 0;
 				int nvalue1, nvalue2; // 传递的参数
 				float fvalue1, fvalue2;
+				Node node = parsingtree.makeNode(expressions[opcode][0]);
+				analysisStack.peek().setFather(node);
 				switch (opcode) {
-				case 54: { // E => E + T
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
-					forn1 = analysisStack.peek().isForn();// forn = float(1) or
-															// number(0)
+				case 53:{ //bexpression => cexpression != cexpression;
+					dataType1 = analysisStack.peek().getDataType();
 					fvalue1 = analysisStack.peek().getFvalue();
 					nvalue1 = analysisStack.peek().getNvalue();
 					analysisStack.pop();
@@ -167,28 +166,51 @@ public class Parsing {
 					analysisStack.pop();
 					stateStack.pop();
 					analysisStack.peek().setFather(node);
-					forn2 = analysisStack.peek().isForn();
+					dataType2 = analysisStack.peek().getDataType();
 					fvalue2 = analysisStack.peek().getFvalue();
 					nvalue2 = analysisStack.peek().getNvalue();
-					if (forn1 || forn2) {// 如果是整数加浮点数
-						node.setForn(true);
-						node.setFvalue(fvalue1 + nvalue1 + fvalue2 + nvalue2);
-					} else {// 如果是整数加整数
-						node.setForn(false);
-						node.setNvalue(nvalue1 + nvalue2);
+					if (dataType1 == 2 && dataType2 == 2){
+						if(nvalue1==nvalue2)
+							node.setBvalue(true);
+						else
+							node.setBvalue(false);
+					}else if(dataType1 == 1 && dataType2 == 1){
+						if(fvalue1==fvalue2)
+							node.setBvalue(true);
+						else
+							node.setBvalue(false);
 					}
-					int leftcode = findLeft(expressions[54][0]);
 					analysisStack.pop();
 					stateStack.pop();
-					stateStack
-							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
-					analysisStack.push(node);
+					
+				}
+				case 54: { // E => E + T
+					dataType1 = analysisStack.peek().getDataType();
+					// dataType : 1 float, 2 int 3 char 4 boolean
+					fvalue1 = analysisStack.peek().getFvalue();
+					nvalue1 = analysisStack.peek().getNvalue();
+					analysisStack.pop();
+					stateStack.pop();
+					analysisStack.peek().setFather(node);
+					analysisStack.pop();
+					stateStack.pop();
+					analysisStack.peek().setFather(node);
+					dataType2 = analysisStack.peek().getDataType();
+					fvalue2 = analysisStack.peek().getFvalue();
+					nvalue2 = analysisStack.peek().getNvalue();
+					if (dataType1 == 2 && dataType2 == 2) {// 如果是整数加整数
+						node.setDataType(2);
+						node.setNvalue(nvalue1 + nvalue2);
+					} else {// 如果浮点数加浮点数
+						node.setDataType(1);
+						node.setFvalue(nvalue1 + nvalue2 + fvalue1 + fvalue2);
+					}
+					analysisStack.pop();
+					stateStack.pop();
 				}
 				case 55: {// E => E - T
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
-					forn1 = analysisStack.peek().isForn();// forn = float(1) or
-															// number(0)
+					dataType1 = analysisStack.peek().getDataType();
+					// dataType : 1 float, 2 int 3 char 4 boolean
 					fvalue1 = analysisStack.peek().getFvalue();
 					nvalue1 = analysisStack.peek().getNvalue();
 					analysisStack.pop();
@@ -197,44 +219,33 @@ public class Parsing {
 					analysisStack.pop();
 					stateStack.pop();
 					analysisStack.peek().setFather(node);
-					forn2 = analysisStack.peek().isForn();
+					dataType2 = analysisStack.peek().getDataType();
 					fvalue2 = analysisStack.peek().getFvalue();
 					nvalue2 = analysisStack.peek().getNvalue();
-					if (forn1 || forn2) {// 如果是整数减浮点数
-						node.setForn(true);
-						node.setFvalue(fvalue1 + nvalue1 - fvalue2 - nvalue2);
-					} else {// 如果是整数减整数
-						node.setForn(false);
+					if (dataType1 == 2 && dataType2 == 2) {// 如果是整数加浮点数
+						node.setDataType(2);
+						;
 						node.setNvalue(nvalue1 - nvalue2);
+					} else {// 如果是整数加整数
+						node.setDataType(1);
+						node.setFvalue(nvalue1 - nvalue2 + fvalue1 - fvalue2);
 					}
 					analysisStack.pop();
 					stateStack.pop();
-					int leftcode = findLeft(expressions[55][0]);
-					stateStack
-							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
-					analysisStack.push(node);
 				}
 				case 56: { // E=>T
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
-					node.setForn(analysisStack.peek().isForn());
-					if (analysisStack.peek().isForn()) {
+					node.setDataType(analysisStack.peek().getDataType());
+					if (analysisStack.peek().getDataType() == 1) {
 						node.setFvalue(analysisStack.peek().getFvalue());
 					} else {
 						node.setNvalue(analysisStack.peek().getNvalue());
 					}
 					analysisStack.pop();
 					stateStack.pop();
-					int leftcode = findLeft(expressions[56][0]);
-					stateStack
-							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
-					analysisStack.push(node);
 				}
 				case 57: { // t => t * f;
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
-					forn1 = analysisStack.peek().isForn();
-					// forn stands for float(1) or number(0)
+					dataType1 = analysisStack.peek().getDataType();
+					// dataType : 1 float, 2 int 3 char 4 boolean
 					fvalue1 = analysisStack.peek().getFvalue();
 					nvalue1 = analysisStack.peek().getNvalue();
 					analysisStack.pop();
@@ -243,32 +254,27 @@ public class Parsing {
 					analysisStack.pop();
 					stateStack.pop();
 					analysisStack.peek().setFather(node);
-					forn2 = analysisStack.peek().isForn();
+					dataType2 = analysisStack.peek().getDataType();
+					// dataType : 1 float, 2 int 3 char 4 boolean
 					fvalue2 = analysisStack.peek().getFvalue();
 					nvalue2 = analysisStack.peek().getNvalue();
-					if (forn1 || forn2) {// 如果是整数乘浮点数
-						node.setForn(true);
-						if (forn1) {
+					if (dataType2 == 1 || dataType1 == 1) {// 如果是整数乘浮点数
+						node.setDataType(1);
+						if (dataType1 == 1) {
 							node.setFvalue(fvalue1 * nvalue2);
 						} else {
 							node.setFvalue(fvalue2 * nvalue1);
 						}
 					} else {// 如果是整数乘整数
-						node.setForn(false);
+						node.setDataType(2);
 						node.setNvalue(nvalue1 * nvalue2);
 					}
 					analysisStack.pop();
 					stateStack.pop();
-					int leftcode = findLeft(expressions[56][0]);
-					stateStack
-							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
-					analysisStack.push(node);
 				}
 				case 58: { // t => t / f;
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
-					forn1 = analysisStack.peek().isForn();
-					// forn stands for float(1) or number(0)
+					dataType1 = analysisStack.peek().getDataType();
+					// dataType : 1 float, 2 int 3 char 4 boolean
 					fvalue1 = analysisStack.peek().getFvalue();
 					nvalue1 = analysisStack.peek().getNvalue();
 					analysisStack.pop();
@@ -277,12 +283,13 @@ public class Parsing {
 					analysisStack.pop();
 					stateStack.pop();
 					analysisStack.peek().setFather(node);
-					forn2 = analysisStack.peek().isForn();
+					dataType2 = analysisStack.peek().getDataType();
+					// dataType : 1 float, 2 int 3 char 4 boolean
 					fvalue2 = analysisStack.peek().getFvalue();
 					nvalue2 = analysisStack.peek().getNvalue();
-					if (forn1 || forn2) {// 如果是整数除浮点数
-						node.setForn(true);
-						if (forn1) {
+					if (dataType1 == 1 || dataType2 == 1) {// 如果是整数除浮点数
+						node.setDataType(1);
+						if (dataType1 == 1) {
 							if (nvalue2 != 0)
 								node.setFvalue(fvalue1 / nvalue2);
 							else
@@ -298,7 +305,7 @@ public class Parsing {
 										+ ": / by zero";
 						}
 					} else {// 如果是整数除整数
-						node.setForn(false);
+						node.setDataType(2);
 						if (nvalue2 != 0)
 							node.setNvalue(nvalue1 / nvalue2);
 						else
@@ -307,126 +314,123 @@ public class Parsing {
 					}
 					analysisStack.pop();
 					stateStack.pop();
-					int leftcode = findLeft(expressions[56][0]);
-					stateStack
-							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
-					analysisStack.push(node);
 				}
 				case 59: { // t=>f
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
-					node.setForn(analysisStack.peek().isForn());
-					if (analysisStack.peek().isForn()) {
+					node.setDataType(analysisStack.peek().getDataType());
+					if (analysisStack.peek().getDataType() == 1) {
 						node.setFvalue(analysisStack.peek().getFvalue());
 					} else {
 						node.setNvalue(analysisStack.peek().getNvalue());
 					}
 					analysisStack.pop();
 					stateStack.pop();
-					int leftcode = findLeft(expressions[56][0]);
-					stateStack
-							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
-					analysisStack.push(node);
 				}
 				case 60: { // f=>asgmtvar
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
-					node.setForn(analysisStack.peek().isForn());
-					if (analysisStack.peek().isForn()) {
+					node.setDataType(analysisStack.peek().getDataType());
+					if (analysisStack.peek().getDataType() == 1) {
 						node.setFvalue(analysisStack.peek().getFvalue());
-					} else {
+					} else if(analysisStack.peek().getDataType() == 2){
 						node.setNvalue(analysisStack.peek().getNvalue());
-					}
+					}else 
+						return "type mismatch on "+analysisStack.peek().getLinenum();
 					analysisStack.pop();
 					stateStack.pop();
-					int leftcode = findLeft(expressions[56][0]);
-					stateStack
-							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
-					analysisStack.push(node);
 				}
 				case 61: {// f=>cconst
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
-					node.setForn(analysisStack.peek().isForn());
-					if (analysisStack.peek().isForn()) {
+					node.setDataType(analysisStack.peek().getDataType());
+					if (analysisStack.peek().getDataType() == 1) {
 						node.setFvalue(analysisStack.peek().getFvalue());
 					} else {
 						node.setNvalue(analysisStack.peek().getNvalue());
 					}
 					analysisStack.pop();
 					stateStack.pop();
-					int leftcode = findLeft(expressions[56][0]);
-					stateStack
-							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
-					analysisStack.push(node);
 				}
-				case 62: {
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
-					node.setForn(analysisStack.peek().isForn());
-					if (analysisStack.peek().isForn()) {
-						node.setFvalue(analysisStack.peek().getFvalue());
-					} else {
-						node.setNvalue(analysisStack.peek().getNvalue());
-					}
+				case 62: { // f => ( cexpression );
 					analysisStack.pop();
 					stateStack.pop();
-					int leftcode = findLeft(expressions[56][0]);
-					stateStack
-							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
-					analysisStack.push(node);
-				}
-				case 63: { //f => ( cexpression );
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
-					analysisStack.pop();
-					stateStack.pop();
-					forn1 = analysisStack.peek().isForn();
-					// forn stands for float(1) or number(0)
+					dataType1 = analysisStack.peek().getDataType();
+					// dataType : 1 float, 2 int 3 char 4 boolean
 					fvalue1 = analysisStack.peek().getFvalue();
 					nvalue1 = analysisStack.peek().getNvalue();
 					analysisStack.peek().setFather(node);
 					analysisStack.pop();
 					stateStack.pop();
 					analysisStack.peek().setFather(node);
-					if (forn1) {
-						node.setForn(true);
+					if (dataType1 == 1) {
+						node.setDataType(1);
 						node.setFvalue(fvalue1);
 					} else {
-						node.setForn(false);
+						node.setDataType(2);
 						node.setNvalue(nvalue1);
 					}
 					analysisStack.pop();
 					stateStack.pop();
-					int leftcode = findLeft(expressions[56][0]);
-					stateStack
-							.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
-					analysisStack.push(node);
 				}
-				case 64:{//const => charconst;
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
+				case 63: {// const => charconst;
+					// dataType : 1 float, 2 int 3 char 4 boolean
+					node.setDataType(3);
+					node.setSvalue(analysisStack.peek().getToken().string
+							.replace("'", ""));
 					analysisStack.pop();
 					stateStack.pop();
 				}
-				case 65: { //f => ( cexpression );
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
+				case 64: { // const => cconst;
+					node.setDataType(analysisStack.peek().getDataType());
+					if (analysisStack.peek().getDataType() == 1) {
+						node.setFvalue(analysisStack.peek().getFvalue());
+					} else {
+						node.setNvalue(analysisStack.peek().getNvalue());
+					}
 					analysisStack.pop();
 					stateStack.pop();
 				}
-				case 66: { //f => ( cexpression );
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
+
+				case 65: {// const => booleanconst;
+					node.setDataType(4);
+					node.setBvalue(analysisStack.peek().getToken().bvalue);
 					analysisStack.pop();
-					stateStack.pop();}
-				case 67: { //f => ( cexpression );
-					Node node = parsingtree.makeNode(token);
-					analysisStack.peek().setFather(node);
-					analysisStack.pop();
-					stateStack.pop();}
-				
+					stateStack.pop();
+					;
 				}
+				case 66: { // cconst => floatconst;
+					node.setDataType(1);
+					node.setFvalue(analysisStack.peek().getToken().fvalue);
+					analysisStack.pop();
+					stateStack.pop();
+				}
+				case 67: { // cconst => numconst;
+					node.setDataType(2);
+					node.setNvalue(analysisStack.peek().getToken().nvalue);
+					analysisStack.pop();
+					stateStack.pop();
+				}
+				case 68: { // cconst => - cconst;
+					node.setDataType(analysisStack.peek().getDataType());
+					if (node.getDataType() == 1)
+						node.setFvalue(analysisStack.peek().getToken().fvalue);
+					else
+						node.setNvalue(analysisStack.peek().getToken().nvalue);
+					analysisStack.pop();
+					stateStack.pop();
+				}
+				case 69: { //booleanconst => true;
+					node.setDataType(4);
+					node.setBvalue(true);
+					analysisStack.pop();
+					stateStack.pop();
+				}
+				case 70: { //booleanconst => false;
+					node.setDataType(4);
+					node.setBvalue(false);
+					analysisStack.pop();
+					stateStack.pop();
+				}
+				}
+				int leftcode = findLeft(expressions[56][0]);
+				stateStack.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
+				analysisStack.push(node);
+
 				if (expressions[opcode][1].length() != 0) {
 					// System.out.println(expressions[opcode][1].split(" ").length);
 					for (int count = 0; count < (expressions[opcode][1]
@@ -438,7 +442,7 @@ public class Parsing {
 				symbolStack.push(expressions[opcode][0]);
 				System.out.println("reduce:" + symbolStack.peek() + " -> "
 						+ expressions[opcode][1]);
-				int leftcode = findLeft(expressions[opcode][0]);
+				// int leftcode = findLeft(expressions[opcode][0]);
 				stateStack.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
 			} else if (opcode == 233) {// 233 means accept
 				System.out.println("Accepted!");

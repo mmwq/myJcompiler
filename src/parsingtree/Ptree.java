@@ -11,6 +11,7 @@ public class Ptree {
 	public Node makeLeaf(Tokens token){
 		Node node = new Node();;
 		node.setToken(token);
+		node.setDataType(token.dataType);
 		node.setNodeName(token.token);
 		return node;
 	}

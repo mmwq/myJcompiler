@@ -3,15 +3,19 @@ package parsingtree;
 import jlex.Tokens;
 
 public class Node {
-	private Tokens token= null;
+	private Tokens token = null;
 	private int inh;
-	private int nvalue=0;
-	private float fvalue=0;
+	private int nvalue = 0;
+	private float fvalue = 0;
 	private Node father = null;
 	private String nodeName = null;
+	private String svalue = null;
+	private boolean bvalue;
 	private int width;
-	private boolean forn = false; //false: int  true : float
-	
+	private int dataType = 0;
+	private int linenum = 0;
+	private String idName = null;
+	// dataType : 1 float, 2 int 3 char 4 boolean
 	public Tokens getToken() {
 		return token;
 	}
@@ -59,6 +63,23 @@ public class Node {
 	public void setNodeName(String nodeName) {
 		this.nodeName = nodeName;
 	}
+	
+	
+	public String getSvalue() {
+		return svalue;
+	}
+
+	public void setSvalue(String svalue) {
+		this.svalue = svalue;
+	}
+
+	public boolean isBvalue() {
+		return bvalue;
+	}
+
+	public void setBvalue(boolean bvalue) {
+		this.bvalue = bvalue;
+	}
 
 	public int getWidth() {
 		return width;
@@ -68,12 +89,28 @@ public class Node {
 		this.width = width;
 	}
 
-	public boolean isForn() {
-		return forn;
+	public int getDataType() {
+		return dataType;
 	}
 
-	public void setForn(boolean forn) {
-		this.forn = forn;
+	public void setDataType(int dataType) {
+		this.dataType = dataType;
+	}
+
+	public int getLinenum() {
+		return linenum;
+	}
+
+	public void setLinenum(int linenum) {
+		this.linenum = linenum;
+	}
+
+	public String getIdName() {
+		return idName;
+	}
+
+	public void setIdName(String idName) {
+		this.idName = idName;
 	}
 	
 }
