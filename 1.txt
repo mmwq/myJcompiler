@@ -1,11 +1,11 @@
 main
-{int a}
+{
+int a :=  1 ;
+int b , c;
+char d
+ }
 begin
-read a ;
-for ( i := 0 ; i<10;i:=i+1 )
 a := a*2;
-rof;
 a:=a+1;
-if not ( true) then  else fi;
-writeln "a" ;
+b := a+1;
 end

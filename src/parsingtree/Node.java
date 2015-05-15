@@ -5,15 +5,16 @@ import jlex.Tokens;
 public class Node {
 	private Tokens token = null;
 	private int inh;
-	private int nvalue = 0;
-	private float fvalue = 0;
+	private int nvalue;
+	private float fvalue;
 	private Node father = null;
 	private String nodeName = null;
 	private String svalue = null;
 	private boolean bvalue;
-	private int width;
-	private int dataType = 0;
+	private int width =0;
+	private int dataType;
 	private int linenum = 0;
+	private int index;
 	private String idName = null;
 	// dataType : 1 float, 2 int 3 char 4 boolean
 	public Tokens getToken() {
@@ -111,6 +112,14 @@ public class Node {
 
 	public void setIdName(String idName) {
 		this.idName = idName;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
 	}
 	
 }
