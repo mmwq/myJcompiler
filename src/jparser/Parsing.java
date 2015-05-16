@@ -282,7 +282,7 @@ public class Parsing {
 							|| analysisStack.peek().getDataType() == 2 ? 4 : 1;
 					element.setSize(w * element.getArraySize());
 					// stab.setOffset(stab.getOffset() + element.getSize());
-					stab.list.add(element);
+					stab.addlement(element);
 					analysisStack.pop();
 					stateStack.pop();
 					break;
@@ -396,7 +396,7 @@ public class Parsing {
 					int index = stab.check(analysisStack.peek().getToken().vid);
 					node.setDataType(stab.list.get(index).getVartype());
 					if (index != -1) {
-						if (stab.list.get(index).getArraySize() - 1 <= node1
+						if (stab.list.get(index).getArraySize() - 1 < node1
 								.getToken().nvalue
 								|| node1.getToken().nvalue < 0) {
 							String[] a = { "array overflow" };

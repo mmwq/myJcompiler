@@ -1,5 +1,5 @@
 DATAS SEGMENT
-dataseg       BYTE   25 DUP (?)
+dataseg       BYTE   37 DUP (?)
 X DW 10000,1000,100,10,1
 DATAS ENDS
 CODES SEGMENT
@@ -9,75 +9,95 @@ START:
 	MOV DS,AX
 		mov ax,100
 		add ax,0
-		mov bx,13
+		mov bx,25
 		mov [bx],ax
-		mov bx,13
+		mov bx,25
 		mov ax,[bx]
 		add ax,0
 		mov bx,0
 		mov [bx],ax
 		mov ax,2
 		add ax,0
-		mov bx,13
+		mov bx,25
 		mov [bx],ax
 		mov bx,0
 		mov ax,[bx]
-		mov bx,13
+		mov bx,25
 		div  byte ptr DS:[bx]
-		mov bx,17
+		mov bx,29
 		mov [bx],ax
-		mov bx,17
+		mov bx,29
 		mov ax,[bx]
 		add ax,0
 		mov bx,0
 		mov [bx],ax
 		mov ax,10
 		add ax,0
-		mov bx,13
+		mov bx,25
 		mov [bx],ax
-		mov bx,13
+		mov bx,25
 		mov ax,[bx]
 		mov bx,0
 		mov bx,[bx]
 		imul bx
-		mov bx,17
+		mov bx,29
 		mov [bx],ax
-		mov bx,17
+		mov bx,29
+		mov ax,[bx]
+		add ax,0
+		mov bx,0
+		mov [bx],ax
+		mov bx,0
+		mov ax,[bx]
+		add ax,0
+		mov bx,16
+		mov [bx],ax
+		mov ax,1
+		add ax,0
+		mov bx,25
+		mov [bx],ax
+		mov bx,25
+		mov ax,[bx]
+		mov bx,16
+		add ax,[bx]
+		mov bx,29
+		mov [bx],ax
+		mov bx,29
+		mov ax,[bx]
+		add ax,0
+		mov bx,20
+		mov [bx],ax
+		mov ax,1
+		add ax,0
+		mov bx,25
+		mov [bx],ax
+		mov bx,25
+		mov ax,[bx]
+		mov bx,0
+		add ax,[bx]
+		mov bx,29
+		mov [bx],ax
+		mov bx,29
 		mov ax,[bx]
 		add ax,0
 		mov bx,0
 		mov [bx],ax
 		mov ax,1
 		add ax,0
-		mov bx,13
+		mov bx,25
 		mov [bx],ax
-		mov bx,13
+		mov bx,25
 		mov ax,[bx]
 		mov bx,0
 		add ax,[bx]
-		mov bx,17
+		mov bx,29
 		mov [bx],ax
-		mov bx,17
-		mov ax,[bx]
-		add ax,0
-		mov bx,0
-		mov [bx],ax
-		mov ax,1
-		add ax,0
-		mov bx,13
-		mov [bx],ax
-		mov bx,13
-		mov ax,[bx]
-		mov bx,0
-		add ax,[bx]
-		mov bx,17
-		mov [bx],ax
-		mov bx,17
+		mov bx,29
 		mov ax,[bx]
 		add ax,0
 		mov bx,8
 		mov [bx],ax
-		mov bx,8
+		mov bx,20
 		mov ax,[bx]
 		MOV SI,offset X
 		xor dx,dx

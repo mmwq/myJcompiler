@@ -69,9 +69,11 @@ public class Gencode {
 			// output.write("        BYTE    cr, Lf, 0");
 			for (int i = 0; i < sysTable.sysList.size(); i++) {
 				List<String> s = this.genDots(sysTable.sysList.get(i));
-				for (int j = 0; j < s.size(); j++) {
-					output.write("	" + s.get(j));
-					output.newLine();
+				if (s != null) {
+					for (int j = 0; j < s.size(); j++) {
+						output.write("	" + s.get(j));
+						output.newLine();
+					}
 				}
 			}
 			output.write("	MOV AH,4CH");
@@ -93,9 +95,9 @@ public class Gencode {
 	private List<String> genDots(String[] sys) {
 		if (sys[0].equals("+")) {
 			List<String> dotlist = new ArrayList<String>();
-			String s0 ,s1, s2;
+			String s0, s1, s2;
 			if (sys[1].contains("$")) {
-				s0 = "	mov bx,"+sys[1].substring(1);
+				s0 = "	mov bx," + sys[1].substring(1);
 				dotlist.add(s0);
 				s1 = "	mov ax,[bx]";
 				dotlist.add(s1);
@@ -104,7 +106,7 @@ public class Gencode {
 				dotlist.add(s1);
 			}
 			if ((sys[2].contains("$"))) {
-				s0 = "	mov bx,"+sys[2].substring(1);
+				s0 = "	mov bx," + sys[2].substring(1);
 				dotlist.add(s0);
 				s2 = "	add ax,[bx]";
 				dotlist.add(s2);
@@ -119,9 +121,9 @@ public class Gencode {
 			return dotlist;
 		} else if (sys[0].equals("-")) {
 			List<String> dotlist = new ArrayList<String>();
-			String s0 ,s1, s2;
+			String s0, s1, s2;
 			if (sys[1].contains("$")) {
-				s0 = "	mov bx,"+sys[1].substring(1);
+				s0 = "	mov bx," + sys[1].substring(1);
 				dotlist.add(s0);
 				s1 = "	mov ax,[bx]";
 				dotlist.add(s1);
@@ -130,7 +132,7 @@ public class Gencode {
 				dotlist.add(s1);
 			}
 			if ((sys[2].contains("$"))) {
-				s0 = "	mov bx,"+sys[2].substring(1);
+				s0 = "	mov bx," + sys[2].substring(1);
 				dotlist.add(s0);
 				s2 = "	sub ax,[bx]";
 				dotlist.add(s2);
@@ -143,11 +145,11 @@ public class Gencode {
 			dotlist.add(s3);
 			dotlist.add(s4);
 			return dotlist;
-		}else if (sys[0].equals("*")) {/*orders*/
+		} else if (sys[0].equals("*")) {/* orders */
 			List<String> dotlist = new ArrayList<String>();
-			String s0,s1, s2;
+			String s0, s1, s2;
 			if (sys[1].contains("$")) {
-				s0 = "	mov bx,"+sys[1].substring(1);
+				s0 = "	mov bx," + sys[1].substring(1);
 				dotlist.add(s0);
 				s1 = "	mov ax,[bx]";
 				dotlist.add(s1);
@@ -156,7 +158,7 @@ public class Gencode {
 				dotlist.add(s1);
 			}
 			if ((sys[2].contains("$"))) {
-				s0 = "	mov bx,"+sys[2].substring(1);
+				s0 = "	mov bx," + sys[2].substring(1);
 				dotlist.add(s0);
 				s2 = "	mov bx,[bx]";
 				dotlist.add(s2);
@@ -171,11 +173,11 @@ public class Gencode {
 			dotlist.add(s4);
 			dotlist.add(s5);
 			return dotlist;
-		} else if (sys[0].equals("/")) {/*orders*/
+		} else if (sys[0].equals("/")) {/* orders */
 			List<String> dotlist = new ArrayList<String>();
-			String s0,s1, s2;
+			String s0, s1, s2;
 			if (sys[1].contains("$")) {
-				s0 = "	mov bx,"+sys[1].substring(1);
+				s0 = "	mov bx," + sys[1].substring(1);
 				dotlist.add(s0);
 				s1 = "	mov ax,[bx]";
 				dotlist.add(s1);
@@ -184,7 +186,7 @@ public class Gencode {
 				dotlist.add(s1);
 			}
 			if ((sys[2].contains("$"))) {
-				s0 = "	mov bx,"+sys[2].substring(1);
+				s0 = "	mov bx," + sys[2].substring(1);
 				dotlist.add(s0);
 				s2 = "	div  byte ptr DS:[bx]";
 				dotlist.add(s2);
@@ -192,18 +194,18 @@ public class Gencode {
 				s2 = "	mov bx," + sys[2].substring(1);
 				dotlist.add(s2);
 				dotlist.add("div bl");
-			}		
+			}
 			String s4 = "	mov bx," + sys[3];
 			String s5 = "	mov [bx],ax";
-//			dotlist.add(s3);
+			// dotlist.add(s3);
 			dotlist.add(s4);
 			dotlist.add(s5);
 			return dotlist;
-		}else if (sys[0].equals("outvar")) {
+		} else if (sys[0].equals("outvar")) {
 			List<String> dotlist = new ArrayList<String>();
-			String s1,s0;
+			String s1, s0;
 			if (sys[1].contains("$")) {
-				s0 = "	mov bx,"+sys[1].substring(1);
+				s0 = "	mov bx," + sys[1].substring(1);
 				dotlist.add(s0);
 				s1 = "	mov ax,[bx]";
 				dotlist.add(s1);

@@ -2,12 +2,15 @@ main
 {
 int a :=  100 ;
 int b , c;
-char d
+int d[3];
+char s
  }
 begin
 a := a/2;
 a := a*10;
+d [1] := a;
+d [2] := d[1] + 1;
 a:=a+1;
 b := a+1;
-write b;
+write d[2];
 end
