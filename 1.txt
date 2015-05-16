@@ -1,11 +1,13 @@
 main
 {
-int a :=  1 ;
+int a :=  100 ;
 int b , c;
 char d
  }
 begin
-a := a*2;
+a := a/2;
+a := a*10;
 a:=a+1;
 b := a+1;
+write b;
 end

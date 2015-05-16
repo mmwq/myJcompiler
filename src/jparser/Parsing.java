@@ -1,5 +1,6 @@
 package jparser;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -124,7 +125,7 @@ public class Parsing {
 			{ "whilestatement", "while bexpression do statements elihw" } };
 	static int[][] actiongoto = new int[185][103];
 	public Stable stab = new Stable();
-
+	static boolean ifdec=true;
 	public Sys parsingAndGenSys(List<Tokens> tokenlist) {
 		GetTable gett = new GetTable();
 		actiongoto = gett.gett(expressions); // 从html获得分析表
@@ -136,6 +137,7 @@ public class Parsing {
 		stateStack.push(0);// start with state 0
 		Ptree parsingtree = new Ptree();
 		Sys sysTable = new Sys();
+		List<String[]> outlist = new ArrayList<String[]>();
 		int i = 0;
 		while (true) {
 			String token = tokenlist.get(i).token;
@@ -165,6 +167,14 @@ public class Parsing {
 				switch (opcode) {
 				case 3: {// M => ;
 					// do nothing
+					break;
+				}
+				case 4:{
+					ifdec=false;
+					analysisStack.pop();
+					stateStack.pop();
+					analysisStack.pop();
+					stateStack.pop();
 					break;
 				}
 				case 10: {// vardecl => type vid := const;
@@ -199,6 +209,7 @@ public class Parsing {
 						element.setSize(4);
 						sysTable.genSys("+", "$" + index, "#0",
 								element.getOffset());
+						System.out.println("+ $ "+index+" #0"+element.getOffset());
 						if (index < 0)
 							sysTable.free(index);
 						break;
@@ -332,9 +343,12 @@ public class Parsing {
 					stateStack.pop();
 					break;
 				}
-//				case 23:{
-//					
-//				}
+				case 23:{//N => ;
+//					Stable subtable = new Stable();
+//					stab.subTablelist.add(subtable);
+					//do nothing
+				}
+				
 				case 42: {// assignment => asgmtvar := expression;
 					Node node1 = analysisStack.peek();
 					analysisStack.pop();
@@ -343,6 +357,9 @@ public class Parsing {
 					stateStack.pop();
 					sysTable.genSys("+", "$" + node1.getIndex(),"#0", 
 							analysisStack.peek().getIndex());
+					if (node1.getIndex() < 0)
+						sysTable.free(node1.getIndex());
+					System.out.println("+ $"+node1.getIndex()+"#0"+analysisStack.peek().getIndex());
 					analysisStack.pop();
 					stateStack.pop();
 					break;
@@ -606,22 +623,15 @@ public class Parsing {
 						}
 					} else {// 如果是整数除整数
 						node.setDataType(2);
-						if (node2.getNvalue() != 0) {
 							// node.setNvalue(nvalue1 / nvalue2);
 							int index = sysTable.malloc();
-							sysTable.genSys("/", "$" + node1.getIndex(), "$"
-									+ node2.getIndex(), index);
+							sysTable.genSys("/", "$" + node2.getIndex(), "$"
+									+ node1.getIndex(), index);
 							node.setIndex(index);
 							if (node1.getIndex() < 0)
 								sysTable.free(node1.getIndex());
 							if (node2.getIndex() < 0)
 								sysTable.free(node2.getIndex());
-						} else {
-							String[] a = { "error on line"
-									+ (node.getToken()).linenum + ":/ by zero" };
-							sysTable.sysList.add(a);
-							return sysTable;
-						}
 					}
 					analysisStack.pop();
 					stateStack.pop();
@@ -736,6 +746,8 @@ public class Parsing {
 					node.setIndex(index);
 					sysTable.genSys("+",  "#"
 							+ analysisStack.peek().getToken().nvalue,"#0", index);
+					System.out.println("+ #"
+							+ analysisStack.peek().getToken().nvalue+" #0"+index);
 					analysisStack.pop();
 					stateStack.pop();
 					// System.out.println("!!");
@@ -768,6 +780,40 @@ public class Parsing {
 				case 72: { // booleanconst => false;
 					node.setDataType(4);
 					// node.setBvalue(false);
+					analysisStack.pop();
+					stateStack.pop();
+					break;
+				}
+				case 79://iostatement => write output;
+				case 80:{//iostatement => writeln output;
+					for(int k = 0;k<outlist.size();k++){
+						String[] s = outlist.get(k);
+						sysTable.genSys(s[0], s[1], s[2], 0);
+					}
+					outlist.clear();
+					analysisStack.pop();
+					stateStack.pop();
+					analysisStack.pop();
+					stateStack.pop();
+					break;
+				}
+				case 84:{//out => asgmtvar;
+					int index=analysisStack.peek().getIndex();
+					String s1 = "outvar";
+					String s2 = "$"+index;
+					String []s ={s1,s2,"null"}; 
+					outlist.add(s);
+					analysisStack.pop();
+					stateStack.pop();
+//					sysTable.genSys(, "$"+index, "null", 0);
+					break;
+				}
+				case 85:{//out => string;
+					String s1 = "outstring";
+					String s2 = analysisStack.peek().getToken().string;
+					sysTable.Stringnum++;
+					String []s ={s1,s2,Integer.toString(sysTable.Stringnum)}; 
+					outlist.add(s);
 					analysisStack.pop();
 					stateStack.pop();
 					break;
