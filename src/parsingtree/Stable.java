@@ -5,9 +5,9 @@ import java.util.List;
 
 public class Stable {
 	public List<Stablee> list = new ArrayList<Stablee>();
-	public List<Stable> subTablelist = new ArrayList<Stable>();
-	public String pid;
-	private Stable father;
+//	public List<Stable> subTablelist = new ArrayList<Stable>();
+//	public String pid;
+//	private Stable father;
 	private int offset = 0;
 
 	// public void setFather
@@ -32,14 +32,4 @@ public class Stable {
 		return -1;
 	}
 
-
-	public Stable getFather() {
-		return father;
-	}
-
-
-	public void setFather(Stable father) {
-		this.father = father;
-	}
-	
 }

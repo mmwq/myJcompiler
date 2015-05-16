@@ -1,16 +1,16 @@
 main
 {
-int a :=  100 ;
-int b , c;
-int d[3];
-char s
+int a[2]
  }
 begin
-a := a/2;
-a := a*10;
-d [1] := a;
-d [2] := d[1] + 1;
-a:=a+1;
-b := a+1;
-write d[2];
+a[0] := 10;
+a[1] := a[0]+5;
+if  a[1] > 11 then
+	if a[1] > 14 then
+		a[1]:=a[1]+1;	
+	else 
+		a[1]:=a[1]-1;
+	fi;
+fi;
+write a[1];
 end

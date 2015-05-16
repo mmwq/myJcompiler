@@ -42,6 +42,7 @@ public class Jlex {
 				line = line.replace("[", " [ ");
 				line = line.replace("{", " { ");
 				line = line.replace("}", " } ");
+				line = line.replace("!", " ! ");
 				line = line.replace("@@", " @@ ");
 				String[] tokens = line.split(" ");
 //				System.out.println(line);
@@ -321,6 +322,10 @@ public class Jlex {
 							if (tokens[i + 2].equals("=")) {
 								System.out.print(" ==");
 								i = i + 2;
+								Tokens token = new Tokens();
+								token.token = "==";
+								token.linenum = lines;
+								tokenlist.add(token);
 								continue;
 							} else {
 								System.out.print(" '=' is unrecognized");

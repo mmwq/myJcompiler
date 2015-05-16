@@ -28,11 +28,11 @@ public class Parsing {
 			"booleanconst", "forstatement", "ifstatement", "istatement",
 			"iestatement", "iostatement", "output", "out", "procedurecall",
 			"parameters", "paralist", "switchstatement", "casestatement",
-			"caselist", "case1", "whilestatement", "M", "N", "S" };
+			"caselist", "case1", "whilestatement", "M", "N","M1", "S" };
 	static String[][] expressions = {
 			{ "S", "P" },
 			{ "P", "main program" },
-			{ "program", "M declarations code" },
+			{ "program", "declarations code" },
 			{ "M", "" },
 			{ "declarations", "vardecblock procblock" },
 			{ "vardecblock", "" },
@@ -51,8 +51,8 @@ public class Parsing {
 			{ "vidlist", "vid , vidlist" },
 			{ "procblock", "" },
 			{ "procblock", "procdecllist" },
-			{ "procdecllist", "N procdecl" },
-			{ "procdecllist", "N procdecl procdecllist" },
+			{ "procdecllist", "procdecl" },
+			{ "procdecllist", "procdecl procdecllist" },
 			{ "N", "" },
 			{ "procdecl", "procheader proccode" },
 			{ "procheader", "function pid ( arguments )" },
@@ -107,9 +107,9 @@ public class Parsing {
 					"for ( vid := expression semi bexpression semi statement ) statements rof" },
 			{ "ifstatement", "istatement" },
 			{ "ifstatement", "iestatement" },
-			{ "istatement", "if bexpression then statements fi" },
+			{ "istatement", "if bexpression M then statements fi" },
 			{ "iestatement",
-					"if bexpression then statements else statements fi" },
+					"if bexpression M then statements M1 else N statements fi" },
 			{ "iostatement", "read asgmtvar" },
 			{ "iostatement", "write output" },
 			{ "iostatement", "writeln output" }, { "output", "out" },
@@ -122,10 +122,12 @@ public class Parsing {
 			{ "caselist", "case1" },
 			{ "caselist", "case case1 semi caselist" }, { "case1", "const" },
 			{ "case1", "const : statements esac" },
-			{ "whilestatement", "while bexpression do statements elihw" } };
-	static int[][] actiongoto = new int[185][103];
+			{ "whilestatement", "while bexpression do statements elihw" },
+			{ "M1",""}
+			};
+	static int[][] actiongoto = new int[186][105];
 	public Stable stab = new Stable();
-	static boolean ifdec=true;
+//	static boolean ifdec=true;
 	public Sys parsingAndGenSys(List<Tokens> tokenlist) {
 		GetTable gett = new GetTable();
 		actiongoto = gett.gett(expressions); // 从html获得分析表
@@ -134,6 +136,8 @@ public class Parsing {
 		Stack<Node> analysisStack = new Stack<Node>();
 //		Stack<String> symbolStack = new Stack<String>();
 		Stack<Integer> stateStack = new Stack<Integer>();
+		Stack<Integer> ifStack = new Stack<Integer>();
+		int ifnums=1;
 		stateStack.push(0);// start with state 0
 		Ptree parsingtree = new Ptree();
 		Sys sysTable = new Sys();
@@ -147,6 +151,10 @@ public class Parsing {
 			if ((opcode > 0) && (opcode != 233)) {
 
 				Node leaf = parsingtree.makeLeaf(tokenlist.get(i));
+				if(token.equals("if")){
+					ifStack.push(ifnums);
+					ifnums++;
+					}
 				analysisStack.push(leaf);
 				// System.out.println("shift " + opcode);
 //				symbolStack.push(token); // original
@@ -165,12 +173,15 @@ public class Parsing {
 				Node node = parsingtree.makeNode(expressions[opcode][0]);
 				// analysisStack.peek().setFather(node);
 				switch (opcode) {
-				case 3: {// M => ;
+				case 3: {// M => ; //yes
 					// do nothing
+					sysTable.genSys("if","$"+analysisStack.peek().getIndex(), "null", ifStack.peek());
+					if(analysisStack.peek().getIndex()<0)
+						sysTable.free(analysisStack.peek().getIndex());
 					break;
 				}
 				case 4:{
-					ifdec=false;
+//					ifdec=false;
 					analysisStack.pop();
 					stateStack.pop();
 					analysisStack.pop();
@@ -344,9 +355,12 @@ public class Parsing {
 					break;
 				}
 				case 23:{//N => ;
+//					sysTable.genSys("goto", "next"+ifStack.peek(), "no", 0);
+					sysTable.genSys("no", ifStack.peek()+":", "null", 0);
 //					Stable subtable = new Stable();
 //					stab.subTablelist.add(subtable);
 					//do nothing
+					break;
 				}
 				
 				case 42: {// assignment => asgmtvar := expression;
@@ -420,6 +434,99 @@ public class Parsing {
 					stateStack.pop();
 					break;
 				}
+				case 52: { // bexpression => cexpression < cexpression;
+					Node node1 = analysisStack.peek();
+					// dataType1 = analysisStack.peek().getDataType();
+					// fvalue1 = analysisStack.peek().getFvalue();
+					// nvalue1 = analysisStack.peek().getNvalue();
+					analysisStack.pop();
+					stateStack.pop();
+					// analysisStack.peek().setFather(node);
+					analysisStack.pop();
+					stateStack.pop();
+					// analysisStack.peek().setFather(node);
+					Node node2 = analysisStack.peek();
+					// dataType2 = analysisStack.peek().getDataType();
+					// fvalue2 = analysisStack.peek().getFvalue();
+					// nvalue2 = analysisStack.peek().getNvalue();
+					if (node1.getDataType() == 2 && node2.getDataType() == 2) {
+						int index = sysTable.malloc();
+						node.setIndex(index);
+						sysTable.genSys("<", "$"+node2.getIndex(), "$"+node1.getIndex(), index);
+						if (node1.getIndex() < 0)
+							sysTable.free(node1.getIndex());
+						if (node2.getIndex() < 0)
+							sysTable.free(node2.getIndex());
+					} else if (node1.getDataType() == 1
+							&& node2.getDataType() == 1) {
+
+					}
+					analysisStack.pop();
+					stateStack.pop();
+					break;
+				}
+				case 53: { // bexpression => cexpression > cexpression;
+					Node node1 = analysisStack.peek();
+					// dataType1 = analysisStack.peek().getDataType();
+					// fvalue1 = analysisStack.peek().getFvalue();
+					// nvalue1 = analysisStack.peek().getNvalue();
+					analysisStack.pop();
+					stateStack.pop();
+					// analysisStack.peek().setFather(node);
+					analysisStack.pop();
+					stateStack.pop();
+					// analysisStack.peek().setFather(node);
+					Node node2 = analysisStack.peek();
+					// dataType2 = analysisStack.peek().getDataType();
+					// fvalue2 = analysisStack.peek().getFvalue();
+					// nvalue2 = analysisStack.peek().getNvalue();
+					if (node1.getDataType() == 2 && node2.getDataType() == 2) {
+						int index = sysTable.malloc();
+						node.setIndex(index);
+						sysTable.genSys(">", "$"+node2.getIndex(), "$"+node1.getIndex(), index);
+						if (node1.getIndex() < 0)
+							sysTable.free(node1.getIndex());
+						if (node2.getIndex() < 0)
+							sysTable.free(node2.getIndex());
+					} else if (node1.getDataType() == 1
+							&& node2.getDataType() == 1) {
+
+					}
+					analysisStack.pop();
+					stateStack.pop();
+					break;
+				}
+				case 54: { // bexpression => cexpression == cexpression;
+					Node node1 = analysisStack.peek();
+					// dataType1 = analysisStack.peek().getDataType();
+					// fvalue1 = analysisStack.peek().getFvalue();
+					// nvalue1 = analysisStack.peek().getNvalue();
+					analysisStack.pop();
+					stateStack.pop();
+					// analysisStack.peek().setFather(node);
+					analysisStack.pop();
+					stateStack.pop();
+					// analysisStack.peek().setFather(node);
+					Node node2 = analysisStack.peek();
+					// dataType2 = analysisStack.peek().getDataType();
+					// fvalue2 = analysisStack.peek().getFvalue();
+					// nvalue2 = analysisStack.peek().getNvalue();
+					if (node1.getDataType() == 2 && node2.getDataType() == 2) {
+						int index = sysTable.malloc();
+						node.setIndex(index);
+						sysTable.genSys("==", "$"+node1.getIndex(), "$"+node2.getIndex(), index);
+						if (node1.getIndex() < 0)
+							sysTable.free(node1.getIndex());
+						if (node2.getIndex() < 0)
+							sysTable.free(node2.getIndex());
+					} else if (node1.getDataType() == 1
+							&& node2.getDataType() == 1) {
+
+					}
+					analysisStack.pop();
+					stateStack.pop();
+					break;
+				}
 				case 55: { // bexpression => cexpression != cexpression;
 					Node node1 = analysisStack.peek();
 					// dataType1 = analysisStack.peek().getDataType();
@@ -436,16 +543,16 @@ public class Parsing {
 					// fvalue2 = analysisStack.peek().getFvalue();
 					// nvalue2 = analysisStack.peek().getNvalue();
 					if (node1.getDataType() == 2 && node2.getDataType() == 2) {
-						if (node1.getNvalue() == node2.getNvalue())
-							node.setBvalue(true);
-						else
-							node.setBvalue(false);
+						int index = sysTable.malloc();
+						node.setIndex(index);
+						sysTable.genSys("!=", "$"+node1.getIndex(), "$"+node2.getIndex(), index);
+						if (node1.getIndex() < 0)
+							sysTable.free(node1.getIndex());
+						if (node2.getIndex() < 0)
+							sysTable.free(node2.getIndex());
 					} else if (node1.getDataType() == 1
 							&& node2.getDataType() == 1) {
-						if (node1.getFvalue() == node2.getFvalue())
-							node.setBvalue(true);
-						else
-							node.setBvalue(false);
+
 					}
 					analysisStack.pop();
 					stateStack.pop();
@@ -784,6 +891,27 @@ public class Parsing {
 					stateStack.pop();
 					break;
 				}
+				case 76:{//istatement => if bexpression then M statements fi;
+					sysTable.genSys("next", Integer.toString(ifStack.peek())+":", "null", 0);
+					sysTable.genSys("no", Integer.toString(ifStack.peek())+":", "null", 0);
+					ifStack.pop();
+					for(int c = 0;c<6;c++){
+						analysisStack.pop();
+						stateStack.pop();
+						}
+					break;
+				}
+				case 77:{//iestatement => if bexpression M then statements M1 else N statements fi;
+					sysTable.genSys("next", Integer.toString(ifStack.peek())+":", "null", 0);
+//					Node node1 = null;
+					for(int c = 0;c<10;c++)
+					{	
+						analysisStack.pop();
+						stateStack.pop();
+					}
+					ifStack.pop();
+					break;
+				}
 				case 79://iostatement => write output;
 				case 80:{//iostatement => writeln output;
 					for(int k = 0;k<outlist.size();k++){
@@ -818,6 +946,9 @@ public class Parsing {
 					stateStack.pop();
 					break;
 				}
+				case 96:{//M1 => ;
+					sysTable.genSys("goto", "next", "null", ifStack.peek());
+				}
 				default: {
 					if (expressions[opcode][1].length() != 0) {
 						// System.out.println(expressions[opcode][1].split(" ").length);
@@ -836,7 +967,7 @@ public class Parsing {
 				int leftcode = findLeft(expressions[opcode][0]);
 				System.out.println("reduce:" + expressions[opcode][0] + " -> "
 						+ expressions[opcode][1]);
-				stateStack.push(actiongoto[stateStack.peek()][leftcode + 55]);// 查goto表
+				stateStack.push(actiongoto[stateStack.peek()][leftcode + keyword.length]);// 查goto表
 				// if (stateStack.peek() == 113) {
 				// System.out.println("!");
 				// }

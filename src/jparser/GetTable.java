@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 
 public class GetTable {
-	static int[][] actiongoto = new int[185][103];
+	static int[][] actiongoto = new int[186][105];
 	static String[][] expressions;
 
 	public int[][] gett(String[][] expressions1) {

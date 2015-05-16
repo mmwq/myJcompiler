@@ -7,7 +7,7 @@ public class Node {
 	private int inh;
 	private int nvalue;
 	private float fvalue;
-	private Node father = null;
+//	private Node father = null;
 	private String nodeName = null;
 	private String svalue = null;
 	private boolean bvalue;
@@ -49,13 +49,13 @@ public class Node {
 		this.fvalue = fvalue;
 	}
 
-	public Node getFather() {
-		return father;
-	}
-
-	public void setFather(Node father) {
-		this.father = father;
-	}
+//	public Node getFather() {
+//		return father;
+//	}
+//
+//	public void setFather(Node father) {
+//		this.father = father;
+//	}
 
 	public String getNodeName() {
 		return nodeName;

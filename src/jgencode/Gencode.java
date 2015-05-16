@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Gencode {
-	public int genCode(Sys sysTable, int stablen) {
+	static 		int bnum = 1;
+	public int genCode(Sys sysTable, int stablen,String defaultName,String customName) {
+
 		System.out.println("After--------");
 		for (int i = 0; i < sysTable.sysList.size(); i++) {
 			String s1 = sysTable.sysList.get(i)[0];
@@ -45,7 +47,12 @@ public class Gencode {
 		int dataSize = stablen + sysTable.maxSize * 4;
 		BufferedWriter output = null;
 		try {
-			output = new BufferedWriter(new FileWriter("1.s"));
+			String filename;
+			if(!customName.equals("null"))
+				{filename=customName;}
+			else
+				{filename=defaultName.substring(0, defaultName.length()-4).concat(".asm");}
+			output = new BufferedWriter(new FileWriter(filename));
 			output.write("DATAS SEGMENT");
 			output.newLine();
 			output.write("dataseg       BYTE   " + dataSize + " DUP (?)");
@@ -57,6 +64,46 @@ public class Gencode {
 			output.write("CODES SEGMENT");
 			output.newLine();
 			output.write("	ASSUME CS:CODES,DS:DATAS");
+			output.newLine();
+			output.write("print: ");
+			output.newLine();
+			output.write("	MOV SI,offset X");
+			output.newLine();
+			output.write("	xor dx,dx");
+			output.newLine();
+			output.write("	mov bx,ax");
+			output.newLine();
+			output.write("	MOV CX,5");
+			output.newLine();
+			output.write("l1:div word ptr [SI]");
+			output.newLine();
+			output.write("	push dx");
+			output.newLine();
+			output.write("	CMP CX,1");
+			output.newLine();
+			output.write("JZ l2");
+			output.newLine();
+			output.write("	cmp dx,bx");
+			output.newLine();
+			output.write("	jz skip");
+			output.newLine();
+			output.write("	l2:    mov dl,al");
+			output.newLine();
+			output.write("	OR DL,30H");
+			output.newLine();
+			output.write("	mov ah,02h");
+			output.newLine();
+			output.write("	int 21h");
+			output.newLine();
+			output.write("skip:  pop ax");
+			output.newLine();
+			output.write("	xor dx,dx");
+			output.newLine();
+			output.write("	add SI,2");
+			output.newLine();
+			output.write("	LOOP l1 ");
+			output.newLine();
+			output.write("	ret");
 			output.newLine();
 			output.write("START:");
 			output.newLine();
@@ -213,26 +260,103 @@ public class Gencode {
 				s1 = "	mov ax," + sys[1].substring(1);
 				dotlist.add(s1);
 			}
-			dotlist.add("	MOV SI,offset X");
-			dotlist.add("	xor dx,dx");
-			dotlist.add("	mov bx,ax");
-			dotlist.add("	MOV CX,5");
-			dotlist.add("l1:div word ptr [SI]");
-			dotlist.add("	push dx");
-			dotlist.add("	CMP CX,1");
-			dotlist.add("JZ l2");
-			dotlist.add("	cmp dx,bx");
-			dotlist.add("	jz skip");
-			dotlist.add("	l2:    mov dl,al");
-			dotlist.add("	OR DL,30H");
-			dotlist.add("	mov ah,02h");
-			dotlist.add("	int 21h");
-			dotlist.add("skip:  pop ax");
-			dotlist.add("	xor dx,dx");
-			dotlist.add("	add SI,2");
-			dotlist.add("	LOOP l1 ");
+			dotlist.add("call print");
+			return dotlist;
+		} else if(sys[0].equals(">")){
+			List<String> dotlist = new ArrayList<String>();
+			dotlist.add("	mov bx," + sys[1].substring(1));
+			dotlist.add("	mov ax,[bx]");
+			dotlist.add("	mov bx," + sys[2].substring(1));
+			dotlist.add("	cmp ax,[bx]");
+			dotlist.add("	jle bn"+bnum);
+			dotlist.add("	mov bx,"+sys[3]);
+			dotlist.add("	mov ax,0FFFFH");
+			dotlist.add("	mov [bx],ax");
+			dotlist.add("	jmp bnext"+bnum);
+			dotlist.add("bn"+bnum+":");
+			dotlist.add("	mov bx,"+sys[3]);
+			dotlist.add("	mov ax,0");
+			dotlist.add("	mov [bx],ax");
+			dotlist.add("bnext"+bnum+":");
+			bnum++;
+			return dotlist;
+		}else if(sys[0].equals("<")){
+			List<String> dotlist = new ArrayList<String>();
+			dotlist.add("	mov bx," + sys[1].substring(1));
+			dotlist.add("	mov ax,[bx]");
+			dotlist.add("	mov bx," + sys[2].substring(1));
+			dotlist.add("	cmp ax,[bx]");
+			dotlist.add("	jge bn"+bnum);
+			dotlist.add("	mov bx,"+sys[3]);
+			dotlist.add("	mov ax,0FFFFH");
+			dotlist.add("	mov [bx],ax");
+			dotlist.add("	jmp bnext"+bnum);
+			dotlist.add("bn"+bnum+":");
+			dotlist.add("	mov bx,"+sys[3]);
+			dotlist.add("	mov ax,0");
+			dotlist.add("	mov [bx],ax");
+			dotlist.add("bnext"+bnum+":");
+			bnum++;
+			return dotlist;
+		}else if(sys[0].equals("==")){
+			List<String> dotlist = new ArrayList<String>();
+			dotlist.add("	mov bx," + sys[1].substring(1));
+			dotlist.add("	mov ax,[bx]");
+			dotlist.add("	mov bx," + sys[2].substring(1));
+			dotlist.add("	cmp ax,[bx]");
+			dotlist.add("	jne bn"+bnum);
+			dotlist.add("	mov bx,"+sys[3]);
+			dotlist.add("	mov ax,0FFFFH");
+			dotlist.add("	mov [bx],ax");
+			dotlist.add("	jmp bnext"+bnum);
+			dotlist.add("bn"+bnum+":");
+			dotlist.add("	mov bx,"+sys[3]);
+			dotlist.add("	mov ax,0");
+			dotlist.add("	mov [bx],ax");
+			dotlist.add("bnext"+bnum+":");
+			bnum++;
+			return dotlist;
+		}else if(sys[0].equals("<")){
+			List<String> dotlist = new ArrayList<String>();
+			dotlist.add("	mov bx," + sys[1].substring(1));
+			dotlist.add("	mov ax,[bx]");
+			dotlist.add("	mov bx," + sys[2].substring(1));
+			dotlist.add("	cmp ax,[bx]");
+			dotlist.add("	je bn"+bnum);
+			dotlist.add("	mov bx,"+sys[3]);
+			dotlist.add("	mov ax,0FFFFH");
+			dotlist.add("	mov [bx],ax");
+			dotlist.add("	jmp bnext"+bnum);
+			dotlist.add("bn"+bnum+":");
+			dotlist.add("	mov bx,"+sys[3]);
+			dotlist.add("	mov ax,0");
+			dotlist.add("	mov [bx],ax");
+			dotlist.add("bnext"+bnum+":");
+			bnum++;
+			return dotlist;
+		}else if(sys[0].equals("no")){
+			List<String> dotlist = new ArrayList<String>();
+			dotlist.add("no"+sys[1]);
+			return dotlist;
+		}else if(sys[0].equals("next")){
+			List<String> dotlist = new ArrayList<String>();
+			dotlist.add("next"+sys[1]);
+			return dotlist;
+		}else if(sys[0].equals("if")){
+			List<String> dotlist = new ArrayList<String>();
+			dotlist.add("	mov bx," + sys[1].substring(1));
+			dotlist.add("	mov ax,[bx]");
+			dotlist.add("	mov bx,0FFFFH");
+			dotlist.add("	cmp ax,bx");
+			dotlist.add("	jne no"+sys[3]);
+			return dotlist;
+		}else if(sys[0].equals("goto")){
+			List<String> dotlist = new ArrayList<String>();
+			dotlist.add("	jmp next"+sys[3]);
 			return dotlist;
 		}
+		
+		
 		return null;
 
 	}

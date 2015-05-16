@@ -11,7 +11,11 @@ import jparser.Parsing;
 public class Main {
 	public static void main(String[] args) {
 		Jlex lexModule = new Jlex();
-		List<Tokens> tokenlist = lexModule.lexicalAnalysis("1.txt");
+		String defaultName = args[0];
+		String customName="null";
+		if (args.length==2)
+			customName= args[1];
+		List<Tokens> tokenlist = lexModule.lexicalAnalysis(args[0]);
 		Parsing parseModule = new Parsing();
 		Sys sysTable = parseModule.parsingAndGenSys(tokenlist);
 		if (sysTable.sysList.get(sysTable.sysList.size() - 1).length == 1)
@@ -25,6 +29,6 @@ public class Main {
 
 		}
 		Gencode gencodeModule = new Gencode();
-		gencodeModule.genCode(sysTable, parseModule.stab.getOffset());
+		gencodeModule.genCode(sysTable, parseModule.stab.getOffset(),defaultName,customName);
 	}
 }
