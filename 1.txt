@@ -1,12 +1,13 @@
 main
 {
+int b := 10;
 int a[2]
  }
 begin
-a[0] := 10;
+a[0] := (b+10)/2;
 a[1] := a[0]+5;
 if  a[1] > 11 then
-	if a[1] > 14 then
+	if a[1] < 14 then
 		a[1]:=a[1]+1;	
 	else 
 		a[1]:=a[1]-1;

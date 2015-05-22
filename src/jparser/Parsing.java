@@ -786,7 +786,7 @@ public class Parsing {
 				case 64: { // f => ( cexpression );/**/
 					analysisStack.pop();
 					stateStack.pop();
-					Node node1 = new Node();
+					Node node1 = analysisStack.peek();
 					node.setIndex(node1.getIndex());
 					// dataType1 = analysisStack.peek().getDataType();
 					// dataType : 1 float, 2 int 3 char 4 boolean

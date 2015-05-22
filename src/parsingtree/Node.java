@@ -4,7 +4,7 @@ import jlex.Tokens;
 
 public class Node {
 	private Tokens token = null;
-	private int inh;
+//	private int inh;
 	private int nvalue;
 	private float fvalue;
 //	private Node father = null;
@@ -15,7 +15,7 @@ public class Node {
 	private int dataType;
 	private int linenum = 0;
 	private int index;
-	private String idName = null;
+//	private String idName = null;
 	// dataType : 1 float, 2 int 3 char 4 boolean
 	public Tokens getToken() {
 		return token;
@@ -25,13 +25,13 @@ public class Node {
 		this.token = token;
 	}
 
-	public int getInh() {
-		return inh;
-	}
-
-	public void setInh(int inh) {
-		this.inh = inh;
-	}
+//	public int getInh() {
+//		return inh;
+//	}
+//
+//	public void setInh(int inh) {
+//		this.inh = inh;
+//	}
 
 	public int getNvalue() {
 		return nvalue;
@@ -106,13 +106,13 @@ public class Node {
 		this.linenum = linenum;
 	}
 
-	public String getIdName() {
-		return idName;
-	}
+//	public String getIdName() {
+//		return idName;
+//	}
 
-	public void setIdName(String idName) {
-		this.idName = idName;
-	}
+//	public void setIdName(String idName) {
+//		this.idName = idName;
+//	}
 
 	public int getIndex() {
 		return index;

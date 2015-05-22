@@ -52,7 +52,7 @@ public class Gencode {
 				{filename=customName;}
 			else
 				{filename=defaultName.substring(0, defaultName.length()-4).concat(".asm");}
-			output = new BufferedWriter(new FileWriter(filename));
+			output = new BufferedWriter(new FileWriter("1.asm"));
 			output.write("DATAS SEGMENT");
 			output.newLine();
 			output.write("dataseg       BYTE   " + dataSize + " DUP (?)");
